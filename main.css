@@ -1,0 +1,33 @@
+body{
+  overflow: hidden;
+}
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 90%;
+  /* aspect ratio */
+  vertical-align: top;
+  overflow: hidden;
+}
+
+.svg-content-responsive {
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  /* left: 0; */
+}
+
+.title {
+  font: 300 78px Helvetica Neue;
+  fill: #666;
+}
+.month {
+  font: 300 50px Helvetica Neue;
+  fill: #555;
+}
+
+.convs {
+  font: 300 20px Helvetica Neue;
+  fill: #555;
+}
