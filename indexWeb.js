@@ -3,7 +3,7 @@ let barWidth = 20;
 let width = window.innerWidth;
 let height = window.innerHeight - 10;
 
-let currMonth = 8;
+let currMonth = 0;
 let currYear = 2015;
 
 let rawConvs = [];
@@ -12,6 +12,8 @@ let lastConvId = 0;
 let forwards = true;
 
 let cloudD3 = null;
+let convsD3 = null;
+let xAxisD3 = null;
 
 margin = ({top: 10, right: 10, bottom: 25, left: 40});
 
@@ -28,10 +30,11 @@ let svg = d3.select("body")
     //Initialize data
     rawConvs = data;
     columns = rawConvs[0].names;
-    console.log(rawConvs[0]);
+    // console.log(rawConvs[0]);
     
+    currMonth = moment(rawConvs[0].date).month();
+    console.log(currMonth);
     
-
     //Fixed labels
     var yearTitle = svg.append("text")
       .attr("class", "title")
@@ -60,30 +63,34 @@ let svg = d3.select("body")
     d3.select(window).on("keydown", function () {
       switch (d3.event.keyCode) {
         case 37:
-          currMonth--;
-          if(currMonth == -1){
-            currYear--;
-            currMonth = 11;
+          if(lastConvId > 0){
+            currMonth--;
+            if(currMonth == -1){
+              currYear--;
+              currMonth = 11;
+            }
+            forwards = false;
+            if(cloudD3 != null){
+              cloudD3.remove()
+              cloudTitle.text("")
+            }
+            update();
           }
-          forwards = false;
-          if(cloudD3 != null){
-            cloudD3.remove()
-            cloudTitle.text("")
-          }
-          update();
           break;
         case 39:
-          currMonth++;
-          if(currMonth == 12){
-            currYear++;
-            currMonth = 0;
+          if(currConvId < 1022){
+            currMonth++;
+            if(currMonth == 12){
+              currYear++;
+              currMonth = 0;
+            }
+            forwards = true;
+            if(cloudD3 != null){
+              cloudD3.remove()
+              cloudTitle.text("")
+            }
+            update();
           }
-          forwards = true;
-          if(cloudD3 != null){
-            cloudD3.remove()
-            cloudTitle.text("")
-          }
-          update();
           break;
       }
     });
@@ -93,7 +100,7 @@ let svg = d3.select("body")
 
       setCurrConvs()
       
-      if(lastConvId > 0)
+      if(convsD3 != null)
         convsD3.remove()
 
       setAxisAndColor()
@@ -114,12 +121,13 @@ let svg = d3.select("body")
         .on("click", (d,i) => {
           if(cloudD3 !== null)
             cloudD3.remove()
-          drawWordCloud(rawConvs[currConvId + i].wordsArray, rawConvs[currConvId + i].wordsAmounts, moment(rawConvs[currConvId + i].date).format("Do, hA"))
+          
+          drawWordCloud(rawConvs[lastConvId + i].wordsArray, rawConvs[lastConvId + i].wordsAmounts, moment(rawConvs[lastConvId + i].date).format("Do, hA"))
         })
       
       yearTitle.text(currYear);
 
-      monthTitle.text(moment(rawConvs[currConvId].date).format("MMMM"));
+      monthTitle.text(moment(rawConvs[lastConvId].date).format("MMMM"));
       
       convsTitle.text(currConvs.length + " conversations");
 
@@ -136,7 +144,7 @@ let svg = d3.select("body")
     }
 
     function setAxisAndColor(){
-      if(lastConvId > 0){
+      if (xAxisD3 != null) {
         
         xAxisD3.remove()
         yAxisD3.remove()
@@ -246,8 +254,7 @@ function sliceConvs(){
     lastConvId--;
     
     
-    
-    while( moment(rawConvs[lastConvId].date).month() == currMonth ){
+    while(lastConvId > -1 && moment(rawConvs[lastConvId].date).month() == currMonth ){      
       lastConvId--;
     }
     lastConvId++;
