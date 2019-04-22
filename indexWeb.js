@@ -100,8 +100,33 @@ let svg = d3.select("body")
 
       setCurrConvs()
       
-      if(convsD3 != null)
+      if(convsD3 != null){
         convsD3.remove()
+      }
+      let sumArray = [];
+      let sumWordsAmount = {};
+
+
+      currConvs.forEach(element => {
+
+
+        sumArray = sumArray.concat(element.wordsArray);
+
+        element.wordsArray.forEach(word2 => {
+          if (sumWordsAmount[word2])
+            sumWordsAmount[word2] += element.wordsAmounts[word2];
+          else
+            sumWordsAmount[word2] = element.wordsAmounts[word2];
+        });
+
+        element.wordsArray.forEach(word2 => {
+          if (sumWordsAmount[word2] < 30) {
+            sumWordsAmount[word2] = null;
+          }
+        });
+      });
+
+      drawWordCloud(sumArray, sumWordsAmount, moment(rawConvs[lastConvId].date).format("MMMM"))
 
       setAxisAndColor()
 
@@ -137,6 +162,8 @@ let svg = d3.select("body")
       currConvs = sliceConvs().map(a => {
         let auxP = a.persons;
         auxP.date = a.date;
+        auxP.wordsArray = a.wordsArray;
+        auxP.wordsAmounts = a.wordsAmounts;
         return auxP;
       });
 
